@@ -1,5 +1,7 @@
 library(magrittr)
 
+
+
 scrape(500)
 emails <- read.csv("emails.csv", check.names = FALSE)
 emails[] <- lapply(emails, as.character)
