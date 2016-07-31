@@ -19,7 +19,7 @@ scrape(17001, 18000)
 scrape(18001, 19000)
 scrape(19001, 19252)
 
-emails <- read.csv("emails_1_1000.csv", check.names = FALSE)
+emails <- read.csv("1_1000_emails.csv", check.names = FALSE)
 emails[] <- lapply(emails, as.character)
 View(emails)
 
