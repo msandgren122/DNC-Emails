@@ -1,15 +1,29 @@
-library(magrittr)
-
-
-
-scrape(500)
-emails <- read.csv("emails.csv", check.names = FALSE)
+scrape(3001, 4000)
+scrape(4001, 5000)
+scrape(5001, 6000)
+scrape(6001, 7000)
+scrape(7001, 8000)
+scrape(8001, 9000)
+scrape(9001, 10000)
+scrape(10001, 11000)
+scrape(11001, 12000)
+scrape(12001, 13000)
+scrape(13001, 14000)
+scrape(14001, 15000)
+scrape(15001, 16000)
+scrape(16001, 17000)
+scrape(17001, 18000)
+scrape(18001, 19000)
+scrape(19001, 19252)
+emails <- read.csv("emails_1_1000.csv", check.names = FALSE)
 emails[] <- lapply(emails, as.character)
 View(emails)
 
-scrape <- function(max) {
+scrape <- function(min, max) {
   emails <- data.frame()
-  for (i in 1:max) {
+  
+  for (i in min:max) {
+    print(i)
     enum = i
     link <- paste("https://wikileaks.org/dnc-emails/emailid/", 
                   toString(enum), 
@@ -20,8 +34,20 @@ scrape <- function(max) {
     from <- grep("\t\t\t\t\tFrom", link) # From
     to <- (grep("\t\t\t\t\t\t", link))[2] # To
     sub <- grep("\t\t\t\t\tSubject", link) # Subject again
+    
     start <- grep("\t\t\t\t<div class=\"email-content\" id=\"uniquer\">", link) #content start
-    end <- min(grep("\t\t\t\t</div>", link)) # content end
+    if (length(start) == 0) {
+      start <- 1
+    } else {
+      start <- start
+    }
+    
+    min_len <- length(grep("\t\t\t\t</div>", link))
+    if (min_len != 0) {
+      end <- min(grep("\t\t\t\t</div>", link)) # content end  
+    } else {
+      end <- (start + 5)
+    }
     
     date <- gsub("\\t", "", link[date])
     date <- gsub("Date: ", "", date)
@@ -31,8 +57,14 @@ scrape <- function(max) {
     to <- gsub("From:", "", to)
     sub <- gsub("\\t", "", link[sub])
     sub <- gsub("Subject: ", "", sub)
+    print(sub)
     
-    body <- link[start:end]
+    if (abs(start - end) > 0) {
+      body <- link[start:end]
+    } else {
+      body <- "NA"
+    }
+
     body <- body[!body %in% body[grep("https", body)]]
     body <- body[!body %in% body[grep("http", body)]]
     body <- body[!body %in% body[grep("<", body)]]
@@ -55,14 +87,14 @@ scrape <- function(max) {
     body <- paste(body, sep = " ", collapse = "")
     body <- gsub("\\s+", " ", body)
     
-    
-    emails <- rbind(emails, data.frame(date, 
-                                       sub, 
-                                       from, 
-                                       to, 
-                                       body, 
-                                       stringsAsFactors = FALSE))
+    emails <- rbind(emails, 
+                    data.frame(date, 
+                               sub, 
+                               from, 
+                               to, 
+                               body, 
+                               stringsAsFactors = FALSE))
     
   }
-  write.csv(emails, "emails.csv", row.names = FALSE)
+  write.csv(emails, paste(min, max, "emails.csv", sep = "_"), row.names = FALSE)
 }
